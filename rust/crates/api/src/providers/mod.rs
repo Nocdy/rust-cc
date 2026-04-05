@@ -7,6 +7,8 @@ use crate::types::{MessageRequest, MessageResponse};
 pub mod claw_provider;
 pub mod openai_compat;
 
+const PROXY_ENV_VARS: &[&str] = &["CLAW_PROXY", "HTTPS_PROXY", "HTTP_PROXY", "ALL_PROXY"];
+
 pub type ProviderFuture<'a, T> = Pin<Box<dyn Future<Output = Result<T, ApiError>> + Send + 'a>>;
 
 pub trait Provider {
@@ -21,6 +23,22 @@ pub trait Provider {
         &'a self,
         request: &'a MessageRequest,
     ) -> ProviderFuture<'a, Self::Stream>;
+}
+
+pub(crate) fn build_http_client() -> Result<reqwest::Client, ApiError> {
+    let mut builder = reqwest::Client::builder();
+    if let Some(proxy_url) = read_proxy_url() {
+        builder = builder.proxy(reqwest::Proxy::all(&proxy_url)?);
+    }
+    builder.build().map_err(ApiError::from)
+}
+
+fn read_proxy_url() -> Option<String> {
+    PROXY_ENV_VARS.iter().find_map(|key| match std::env::var(key) {
+        Ok(value) if !value.trim().is_empty() => Some(value),
+        Ok(_) | Err(std::env::VarError::NotPresent) => None,
+        Err(std::env::VarError::NotUnicode(_)) => None,
+    })
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -213,7 +231,10 @@ pub fn max_tokens_for_model(model: &str) -> u32 {
 
 #[cfg(test)]
 mod tests {
-    use super::{detect_provider_kind, max_tokens_for_model, resolve_model_alias, ProviderKind};
+    use super::{
+        detect_provider_kind, max_tokens_for_model, read_proxy_url, resolve_model_alias,
+        ProviderKind,
+    };
 
     #[test]
     fn resolves_grok_aliases() {
@@ -235,5 +256,17 @@ mod tests {
     fn keeps_existing_max_token_heuristic() {
         assert_eq!(max_tokens_for_model("opus"), 32_000);
         assert_eq!(max_tokens_for_model("grok-3"), 64_000);
+    }
+
+    #[test]
+    fn proxy_env_prefers_claw_proxy_over_standard_proxy_vars() {
+        std::env::remove_var("HTTPS_PROXY");
+        std::env::remove_var("HTTP_PROXY");
+        std::env::remove_var("ALL_PROXY");
+        std::env::set_var("CLAW_PROXY", "http://127.0.0.1:7890");
+
+        assert_eq!(read_proxy_url().as_deref(), Some("http://127.0.0.1:7890"));
+
+        std::env::remove_var("CLAW_PROXY");
     }
 }

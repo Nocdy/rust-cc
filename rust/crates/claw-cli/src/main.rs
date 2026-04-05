@@ -70,7 +70,11 @@ Run `claw --help` for usage."
 
 fn run() -> Result<(), Box<dyn std::error::Error>> {
     let args: Vec<String> = env::args().skip(1).collect();
-    match parse_args(&args)? {
+    let action = parse_args(&args)?;
+    if should_apply_config_env(&action) {
+        apply_config_env_overrides()?;
+    }
+    match action {
         CliAction::DumpManifests => dump_manifests(),
         CliAction::BootstrapPlan => print_bootstrap_plan(),
         CliAction::Agents { args } => LiveCli::print_agents(args.as_deref())?,
@@ -98,6 +102,27 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
             permission_mode,
         } => run_repl(model, allowed_tools, permission_mode)?,
         CliAction::Help => print_help(),
+    }
+    Ok(())
+}
+
+fn should_apply_config_env(action: &CliAction) -> bool {
+    !matches!(
+        action,
+        CliAction::DumpManifests
+            | CliAction::BootstrapPlan
+            | CliAction::Version
+            | CliAction::Help
+    )
+}
+
+fn apply_config_env_overrides() -> Result<(), Box<dyn std::error::Error>> {
+    let cwd = env::current_dir()?;
+    let config = ConfigLoader::default_for(&cwd).load()?;
+    for (key, value) in config.env() {
+        if env::var_os(&key).is_none() {
+            env::set_var(key, value);
+        }
     }
     Ok(())
 }
@@ -510,7 +535,8 @@ fn run_login() -> Result<(), Box<dyn std::error::Error>> {
         return Err(io::Error::new(io::ErrorKind::InvalidData, "oauth state mismatch").into());
     }
 
-    let client = ClawApiClient::from_auth(AuthSource::None).with_base_url(api::read_base_url());
+    let client =
+        ClawApiClient::from_auth(AuthSource::None)?.with_base_url(api::read_base_url());
     let exchange_request =
         OAuthTokenExchangeRequest::from_config(oauth, code, state, pkce.verifier, redirect_uri);
     let runtime = tokio::runtime::Runtime::new()?;
@@ -2893,7 +2919,7 @@ impl DefaultRuntimeClient {
     ) -> Result<Self, Box<dyn std::error::Error>> {
         Ok(Self {
             runtime: tokio::runtime::Runtime::new()?,
-            client: ClawApiClient::from_auth(resolve_cli_auth_source()?)
+            client: ClawApiClient::from_auth(resolve_cli_auth_source()?)?
                 .with_base_url(api::read_base_url()),
             model,
             enable_tools,

@@ -35,6 +35,7 @@ async fn send_message_posts_json_and_parses_response() {
     .await;
 
     let client = ApiClient::new("test-key")
+        .expect("client")
         .with_auth_token(Some("proxy-token".to_string()))
         .with_base_url(server.base_url());
     let response = client
@@ -105,6 +106,7 @@ async fn stream_message_parses_sse_events_with_tool_use() {
     .await;
 
     let client = ApiClient::new("test-key")
+        .expect("client")
         .with_auth_token(Some("proxy-token".to_string()))
         .with_base_url(server.base_url());
     let mut stream = client
@@ -183,6 +185,7 @@ async fn retries_retryable_failures_before_succeeding() {
     .await;
 
     let client = ApiClient::new("test-key")
+        .expect("client")
         .with_base_url(server.base_url())
         .with_retry_policy(2, Duration::from_millis(1), Duration::from_millis(2));
 
@@ -257,6 +260,7 @@ async fn surfaces_retry_exhaustion_for_persistent_retryable_errors() {
     .await;
 
     let client = ApiClient::new("test-key")
+        .expect("client")
         .with_base_url(server.base_url())
         .with_retry_policy(1, Duration::from_millis(1), Duration::from_millis(2));
 

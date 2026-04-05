@@ -9,7 +9,7 @@ use serde::Deserialize;
 
 use crate::error::ApiError;
 
-use super::{Provider, ProviderFuture};
+use super::{build_http_client, Provider, ProviderFuture};
 use crate::sse::SseParser;
 use crate::types::{MessageRequest, MessageResponse, StreamEvent};
 
@@ -116,32 +116,30 @@ pub struct ClawApiClient {
 }
 
 impl ClawApiClient {
-    #[must_use]
-    pub fn new(api_key: impl Into<String>) -> Self {
-        Self {
-            http: reqwest::Client::new(),
+    pub fn new(api_key: impl Into<String>) -> Result<Self, ApiError> {
+        Ok(Self {
+            http: build_http_client()?,
             auth: AuthSource::ApiKey(api_key.into()),
             base_url: DEFAULT_BASE_URL.to_string(),
             max_retries: DEFAULT_MAX_RETRIES,
             initial_backoff: DEFAULT_INITIAL_BACKOFF,
             max_backoff: DEFAULT_MAX_BACKOFF,
-        }
+        })
     }
 
-    #[must_use]
-    pub fn from_auth(auth: AuthSource) -> Self {
-        Self {
-            http: reqwest::Client::new(),
+    pub fn from_auth(auth: AuthSource) -> Result<Self, ApiError> {
+        Ok(Self {
+            http: build_http_client()?,
             auth,
             base_url: DEFAULT_BASE_URL.to_string(),
             max_retries: DEFAULT_MAX_RETRIES,
             initial_backoff: DEFAULT_INITIAL_BACKOFF,
             max_backoff: DEFAULT_MAX_BACKOFF,
-        }
+        })
     }
 
     pub fn from_env() -> Result<Self, ApiError> {
-        Ok(Self::from_auth(AuthSource::from_env_or_saved()?).with_base_url(read_base_url()))
+        Ok(Self::from_auth(AuthSource::from_env_or_saved()?)?.with_base_url(read_base_url()))
     }
 
     #[must_use]
@@ -446,7 +444,7 @@ fn resolve_saved_oauth_token_set(
     let Some(refresh_token) = token_set.refresh_token.clone() else {
         return Err(ApiError::ExpiredOAuthToken);
     };
-    let client = ClawApiClient::from_auth(AuthSource::None).with_base_url(read_base_url());
+    let client = ClawApiClient::from_auth(AuthSource::None)?.with_base_url(read_base_url());
     let refreshed = client_runtime_block_on(async {
         client
             .refresh_oauth_token(
@@ -960,11 +958,9 @@ mod tests {
 
     #[test]
     fn backoff_doubles_until_maximum() {
-        let client = ClawApiClient::new("test-key").with_retry_policy(
-            3,
-            Duration::from_millis(10),
-            Duration::from_millis(25),
-        );
+        let client = ClawApiClient::new("test-key")
+            .expect("client")
+            .with_retry_policy(3, Duration::from_millis(10), Duration::from_millis(25));
         assert_eq!(
             client.backoff_for_attempt(1).expect("attempt 1"),
             Duration::from_millis(10)

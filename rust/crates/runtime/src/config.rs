@@ -328,6 +328,19 @@ impl RuntimeConfig {
     pub fn sandbox(&self) -> &SandboxConfig {
         &self.feature_config.sandbox
     }
+
+    #[must_use]
+    pub fn env(&self) -> BTreeMap<String, String> {
+        self.merged
+            .get("env")
+            .and_then(|value| value.as_object())
+            .map(|env| {
+                env.iter()
+                    .filter_map(|(key, value)| value.as_str().map(|value| (key.clone(), value.to_string())))
+                    .collect()
+            })
+            .unwrap_or_default()
+    }
 }
 
 impl RuntimeFeatureConfig {
@@ -422,8 +435,22 @@ impl RuntimePluginConfig {
 pub fn default_config_home() -> PathBuf {
     std::env::var_os("CLAW_CONFIG_HOME")
         .map(PathBuf::from)
-        .or_else(|| std::env::var_os("HOME").map(|home| PathBuf::from(home).join(".claw")))
+        .or_else(|| user_home_dir().map(|home| home.join(".claw")))
         .unwrap_or_else(|| PathBuf::from(".claw"))
+}
+
+#[must_use]
+pub fn user_home_dir() -> Option<PathBuf> {
+    std::env::var_os("HOME")
+        .or_else(|| std::env::var_os("USERPROFILE"))
+        .map(PathBuf::from)
+        .or_else(|| {
+            let drive = std::env::var_os("HOMEDRIVE")?;
+            let path = std::env::var_os("HOMEPATH")?;
+            let mut home = PathBuf::from(drive);
+            home.push(path);
+            Some(home)
+        })
 }
 
 impl RuntimeHookConfig {

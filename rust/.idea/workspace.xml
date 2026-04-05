@@ -42,13 +42,13 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="94" />
+    <option name="cachedIndexableFilesCount" value="75" />
   </component>
   <component name="ExecutionTargetManager" SELECTED_TARGET="RsBuildProfile:dev" />
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$/.." value="cc_for_win" />
+        <entry key="$PROJECT_DIR$/.." value="main" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
@@ -83,7 +83,7 @@
     "RunOnceActivity.rust.reset.selective.auto.import": "true",
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "codeWithMe.voiceChat.enabledByDefault": "false",
-    "git-widget-placeholder": "main",
+    "git-widget-placeholder": "cc__for__win",
     "ignore.virus.scanning.warn.message": "true",
     "last_opened_file_path": "C:/Users/Nocdy/workspace/RustRoverProjects/rust",
     "node.js.detected.package.eslint": "true",
@@ -147,8 +147,7 @@
       <option name="presentableId" value="Default" />
       <updated>1775414278425</updated>
       <workItem from="1775414279427" duration="423000" />
-      <workItem from="1775415915334" duration="7772000" />
-      <workItem from="1775423804242" duration="28000" />
+      <workItem from="1775415915334" duration="5028000" />
     </task>
     <task id="LOCAL-00001" summary="adapt for windows os">
       <option name="closed" value="true" />

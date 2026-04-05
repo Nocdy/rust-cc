@@ -12,7 +12,7 @@ use crate::types::{
     ToolChoice, ToolDefinition, ToolResultContentBlock, Usage,
 };
 
-use super::{Provider, ProviderFuture};
+use super::{build_http_client, Provider, ProviderFuture};
 
 pub const DEFAULT_XAI_BASE_URL: &str = "https://api.x.ai/v1";
 pub const DEFAULT_OPENAI_BASE_URL: &str = "https://api.openai.com/v1";
@@ -74,16 +74,15 @@ pub struct OpenAiCompatClient {
 }
 
 impl OpenAiCompatClient {
-    #[must_use]
-    pub fn new(api_key: impl Into<String>, config: OpenAiCompatConfig) -> Self {
-        Self {
-            http: reqwest::Client::new(),
+    pub fn new(api_key: impl Into<String>, config: OpenAiCompatConfig) -> Result<Self, ApiError> {
+        Ok(Self {
+            http: build_http_client()?,
             api_key: api_key.into(),
             base_url: read_base_url(config),
             max_retries: DEFAULT_MAX_RETRIES,
             initial_backoff: DEFAULT_INITIAL_BACKOFF,
             max_backoff: DEFAULT_MAX_BACKOFF,
-        }
+        })
     }
 
     pub fn from_env(config: OpenAiCompatConfig) -> Result<Self, ApiError> {
@@ -93,7 +92,7 @@ impl OpenAiCompatClient {
                 config.credential_env_vars(),
             ));
         };
-        Ok(Self::new(api_key, config))
+        Self::new(api_key, config)
     }
 
     #[must_use]

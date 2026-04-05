@@ -9,6 +9,19 @@ use std::time::{SystemTime, UNIX_EPOCH};
 use plugins::{PluginError, PluginManager, PluginSummary};
 use runtime::{compact_session, CompactionConfig, Session};
 
+fn user_home_dir() -> Option<PathBuf> {
+    env::var_os("HOME")
+        .or_else(|| env::var_os("USERPROFILE"))
+        .map(PathBuf::from)
+        .or_else(|| {
+            let drive = env::var_os("HOMEDRIVE")?;
+            let path = env::var_os("HOMEPATH")?;
+            let mut home = PathBuf::from(drive);
+            home.push(path);
+            Some(home)
+        })
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct CommandManifestEntry {
     pub name: String,
@@ -1141,8 +1154,7 @@ fn discover_definition_roots(cwd: &Path, leaf: &str) -> Vec<(DefinitionSource, P
         );
     }
 
-    if let Some(home) = env::var_os("HOME") {
-        let home = PathBuf::from(home);
+    if let Some(home) = user_home_dir() {
         push_unique_root(
             &mut roots,
             DefinitionSource::UserCodex,
@@ -1204,8 +1216,7 @@ fn discover_skill_roots(cwd: &Path) -> Vec<SkillRoot> {
         );
     }
 
-    if let Some(home) = env::var_os("HOME") {
-        let home = PathBuf::from(home);
+    if let Some(home) = user_home_dir() {
         push_unique_skill_root(
             &mut roots,
             DefinitionSource::UserCodex,

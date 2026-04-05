@@ -37,7 +37,7 @@ impl ProviderClient {
         let resolved_model = providers::resolve_model_alias(model);
         match providers::detect_provider_kind(&resolved_model) {
             ProviderKind::ClawApi => Ok(Self::ClawApi(match default_auth {
-                Some(auth) => ClawApiClient::from_auth(auth),
+                Some(auth) => ClawApiClient::from_auth(auth)?,
                 None => ClawApiClient::from_env()?,
             })),
             ProviderKind::Xai => Ok(Self::Xai(OpenAiCompatClient::from_env(

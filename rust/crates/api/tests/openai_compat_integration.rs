@@ -34,6 +34,7 @@ async fn send_message_uses_openai_compatible_endpoint_and_auth() {
     .await;
 
     let client = OpenAiCompatClient::new("xai-test-key", OpenAiCompatConfig::xai())
+        .expect("client")
         .with_base_url(server.base_url());
     let response = client
         .send_message(&sample_request(false))
@@ -84,6 +85,7 @@ async fn send_message_accepts_full_chat_completions_endpoint_override() {
 
     let endpoint_url = format!("{}/chat/completions", server.base_url());
     let client = OpenAiCompatClient::new("xai-test-key", OpenAiCompatConfig::xai())
+        .expect("client")
         .with_base_url(endpoint_url);
     let response = client
         .send_message(&sample_request(false))
@@ -118,6 +120,7 @@ async fn stream_message_normalizes_text_and_multiple_tool_calls() {
     .await;
 
     let client = OpenAiCompatClient::new("xai-test-key", OpenAiCompatConfig::xai())
+        .expect("client")
         .with_base_url(server.base_url());
     let mut stream = client
         .stream_message(&sample_request(false))
