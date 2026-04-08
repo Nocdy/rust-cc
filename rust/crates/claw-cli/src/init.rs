@@ -86,6 +86,12 @@ pub(crate) fn initialize_repo(cwd: &Path) -> Result<InitReport, Box<dyn std::err
         status: ensure_dir(&claw_dir)?,
     });
 
+    let specs_dir = claw_dir.join("specs");
+    artifacts.push(InitArtifact {
+        name: ".claw/specs/",
+        status: ensure_dir(&specs_dir)?,
+    });
+
     let claw_json = cwd.join(".claw.json");
     artifacts.push(InitArtifact {
         name: ".claw.json",
@@ -210,6 +216,7 @@ pub(crate) fn render_init_claw_md(cwd: &Path) -> String {
     lines.push("## Working agreement".to_string());
     lines.push("- Prefer small, reviewable changes and keep generated bootstrap files aligned with actual repo workflows.".to_string());
     lines.push("- Keep shared defaults in `.claw.json`; reserve `.claw/settings.local.json` for machine-local overrides.".to_string());
+    lines.push("- Put reusable spec-coding rules in `.claw/specs/*.md`; every markdown file in that directory is loaded automatically at agent startup.".to_string());
     lines.push("- Do not overwrite existing `CLAW.md` content automatically; update it intentionally when repo workflows change.".to_string());
     lines.push(String::new());
 
@@ -355,10 +362,12 @@ mod tests {
         let report = initialize_repo(&root).expect("init should succeed");
         let rendered = report.render();
         assert!(rendered.contains(".claw/           created"));
+        assert!(rendered.contains(".claw/specs/     created"));
         assert!(rendered.contains(".claw.json       created"));
         assert!(rendered.contains(".gitignore       created"));
         assert!(rendered.contains("CLAW.md          created"));
         assert!(root.join(".claw").is_dir());
+        assert!(root.join(".claw").join("specs").is_dir());
         assert!(root.join(".claw.json").is_file());
         assert!(root.join("CLAW.md").is_file());
         assert_eq!(
@@ -395,6 +404,7 @@ mod tests {
         let second = initialize_repo(&root).expect("second init should succeed");
         let second_rendered = second.render();
         assert!(second_rendered.contains(".claw/           skipped (already exists)"));
+        assert!(second_rendered.contains(".claw/specs/     skipped (already exists)"));
         assert!(second_rendered.contains(".claw.json       skipped (already exists)"));
         assert!(second_rendered.contains(".gitignore       skipped (already exists)"));
         assert!(second_rendered.contains("CLAW.md          skipped (already exists)"));
@@ -426,6 +436,7 @@ mod tests {
         assert!(rendered.contains("Frameworks/tooling markers: Next.js, React."));
         assert!(rendered.contains("pyproject.toml"));
         assert!(rendered.contains("Next.js detected"));
+        assert!(rendered.contains(".claw/specs/*.md"));
 
         fs::remove_dir_all(root).expect("cleanup temp dir");
     }

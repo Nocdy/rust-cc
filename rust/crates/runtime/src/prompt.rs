@@ -218,6 +218,7 @@ fn discover_instruction_files(cwd: &Path) -> std::io::Result<Vec<ContextFile>> {
         ] {
             push_context_file(&mut files, candidate)?;
         }
+        push_context_files_from_directory(&mut files, dir.join(".claw").join("specs"))?;
     }
     Ok(dedupe_instruction_files(files))
 }
@@ -232,6 +233,34 @@ fn push_context_file(files: &mut Vec<ContextFile>, path: PathBuf) -> std::io::Re
         Err(error) if error.kind() == std::io::ErrorKind::NotFound => Ok(()),
         Err(error) => Err(error),
     }
+}
+
+fn push_context_files_from_directory(
+    files: &mut Vec<ContextFile>,
+    directory: PathBuf,
+) -> std::io::Result<()> {
+    let entries = match fs::read_dir(&directory) {
+        Ok(entries) => entries,
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => return Ok(()),
+        Err(error) => return Err(error),
+    };
+
+    let mut markdown_files = entries
+        .filter_map(|entry| entry.ok().map(|entry| entry.path()))
+        .filter(|path| path.is_file())
+        .filter(|path| {
+            path.extension()
+                .and_then(|extension| extension.to_str())
+                .is_some_and(|extension| extension.eq_ignore_ascii_case("md"))
+        })
+        .collect::<Vec<_>>();
+    markdown_files.sort();
+
+    for path in markdown_files {
+        push_context_file(files, path)?;
+    }
+
+    Ok(())
 }
 
 fn read_git_status(cwd: &Path) -> Option<String> {
@@ -528,6 +557,7 @@ mod tests {
         let root = temp_dir();
         let nested = root.join("apps").join("api");
         fs::create_dir_all(nested.join(".claw")).expect("nested claw dir");
+        fs::create_dir_all(root.join(".claw").join("specs")).expect("root specs dir");
         fs::write(root.join("CLAW.md"), "root instructions").expect("write root instructions");
         fs::write(root.join("CLAW.local.md"), "local instructions")
             .expect("write local instructions");
@@ -547,6 +577,21 @@ mod tests {
             "nested instructions",
         )
         .expect("write nested instructions");
+        fs::write(
+            root.join(".claw").join("specs").join("01-api.md"),
+            "api spec",
+        )
+        .expect("write first spec");
+        fs::write(
+            root.join(".claw").join("specs").join("02-style.md"),
+            "style spec",
+        )
+        .expect("write second spec");
+        fs::write(
+            root.join(".claw").join("specs").join("ignore.txt"),
+            "ignore me",
+        )
+        .expect("write ignored non-markdown file");
 
         let context = ProjectContext::discover(&nested, "2026-03-31").expect("context should load");
         let contents = context
@@ -560,6 +605,8 @@ mod tests {
             vec![
                 "root instructions",
                 "local instructions",
+                "api spec",
+                "style spec",
                 "apps instructions",
                 "apps dot claw instructions",
                 "nested rules",
