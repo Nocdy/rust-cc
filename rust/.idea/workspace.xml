@@ -35,11 +35,15 @@
     </cargoProject>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="faa8cea0-ac1d-44d9-9d40-97fda5e19d2a" name="更改" comment="adapt for windows os">
-      <change beforePath="$PROJECT_DIR$/../.idea/rust-cc.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/rust-cc.iml" afterDir="false" />
+    <list default="true" id="faa8cea0-ac1d-44d9-9d40-97fda5e19d2a" name="更改" comment="init Spec-Driven Development for agent">
+      <change afterPath="$PROJECT_DIR$/.claw/specs/00-sdd-process.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.claw/specs/10-feature-spec-template.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.claw/specs/20-api-contracts.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.claw/specs/30-testing-rules.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.claw/specs/40-example-memory-feature.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.claw/specs/00-spec-coding.md" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crates/claw-cli/src/init.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/claw-cli/src/init.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crates/runtime/src/prompt.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/runtime/src/prompt.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CLAW.md" beforeDir="false" afterPath="$PROJECT_DIR$/CLAW.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -47,7 +51,7 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="96" />
+    <option name="cachedIndexableFilesCount" value="102" />
   </component>
   <component name="ExecutionTargetManager" SELECTED_TARGET="RsBuildProfile:dev" />
   <component name="Git.Settings">
@@ -58,6 +62,18 @@
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
   </component>
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "lastFilter": {
+    "state": "OPEN",
+    "assignee": "Nocdy"
+  }
+}]]></component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "git@github.com:Nocdy/rust-cc.git",
+    "accountId": "924de854-86d6-4c55-a9a7-88893dac4a19"
+  }
+}]]></component>
   <component name="MacroExpansionManager">
     <option name="directoryName" value="QfEXQfu5" />
   </component>
@@ -99,7 +115,7 @@
     &quot;org.rust.cargo.project.model.PROJECT_DISCOVERY&quot;: &quot;true&quot;,
     &quot;org.rust.cargo.project.model.impl.CargoExternalSystemProjectAware.subscribe.first.balloon&quot;: &quot;&quot;,
     &quot;org.rust.first.attach.projects&quot;: &quot;true&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;project.propVCSSupport.CommitDialog&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;language.rust.cargo.check&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
@@ -155,7 +171,9 @@
       <workItem from="1775415915334" duration="5028000" />
       <workItem from="1775563592904" duration="4555000" />
       <workItem from="1775664933827" duration="35000" />
-      <workItem from="1775664988701" duration="1254000" />
+      <workItem from="1775664988701" duration="1390000" />
+      <workItem from="1775885088715" duration="3063000" />
+      <workItem from="1775888197445" duration="637000" />
     </task>
     <task id="LOCAL-00001" summary="adapt for windows os">
       <option name="closed" value="true" />
@@ -173,7 +191,15 @@
       <option name="project" value="LOCAL" />
       <updated>1775563787287</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="init Spec-Driven Development for agent">
+      <option name="closed" value="true" />
+      <created>1775666320752</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1775666320752</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -192,6 +218,7 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="adapt for windows os" />
-    <option name="LAST_COMMIT_MESSAGE" value="adapt for windows os" />
+    <MESSAGE value="init Spec-Driven Development for agent" />
+    <option name="LAST_COMMIT_MESSAGE" value="init Spec-Driven Development for agent" />
   </component>
 </project>
