@@ -8,6 +8,11 @@ This repository uses Spec-Driven Development (SDD).
 - Load and follow every markdown file in `.claw/specs/` on each agent startup.
 - When multiple spec files exist, read them in filename order.
 
+## Primary domain
+
+- Use these specs primarily for Java development, especially Spring Boot and common Web application work.
+- Default to conventions that fit layered Java services unless a project spec says otherwise.
+
 ## SDD rule
 
 - Start non-trivial changes from a spec instead of implementing directly from an informal request.
